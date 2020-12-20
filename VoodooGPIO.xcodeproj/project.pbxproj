@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0FC03704258E6F890026BA14 /* libkmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC03703258E6F890026BA14 /* libkmod.a */; };
 		ACD8275D219D034F0041DE1B /* VoodooGPIOCannonLakeLP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACD8275B219D034F0041DE1B /* VoodooGPIOCannonLakeLP.cpp */; };
 		ACD8275E219D034F0041DE1B /* VoodooGPIOCannonLakeLP.hpp in Headers */ = {isa = PBXBuildFile; fileRef = ACD8275C219D034F0041DE1B /* VoodooGPIOCannonLakeLP.hpp */; };
 		ACD82762219D06C20041DE1B /* VoodooGPIOCannonLakeH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACD82760219D06C20041DE1B /* VoodooGPIOCannonLakeH.cpp */; };
@@ -22,6 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0FC03703258E6F890026BA14 /* libkmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkmod.a; path = ../../MacKernelSDK/Library/x86_64/libkmod.a; sourceTree = "<group>"; };
 		ACD8275B219D034F0041DE1B /* VoodooGPIOCannonLakeLP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooGPIOCannonLakeLP.cpp; sourceTree = "<group>"; };
 		ACD8275C219D034F0041DE1B /* VoodooGPIOCannonLakeLP.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VoodooGPIOCannonLakeLP.hpp; sourceTree = "<group>"; };
 		ACD82760219D06C20041DE1B /* VoodooGPIOCannonLakeH.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooGPIOCannonLakeH.cpp; sourceTree = "<group>"; };
@@ -44,12 +46,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0FC03704258E6F890026BA14 /* libkmod.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0FC03702258E6F890026BA14 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0FC03703258E6F890026BA14 /* libkmod.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		ACD8275A219D03290041DE1B /* CannonLake-LP */ = {
 			isa = PBXGroup;
 			children = (
@@ -91,6 +102,7 @@
 			children = (
 				F1F172C71F42263A00AD98FA /* VoodooGPIO */,
 				F1F172C61F42263A00AD98FA /* Products */,
+				0FC03702258E6F890026BA14 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -228,6 +240,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = x86_64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -273,6 +286,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				KERNEL_EXTENSION_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
+				KERNEL_FRAMEWORK_HEADERS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -284,6 +299,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = x86_64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -323,6 +339,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				KERNEL_EXTENSION_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
+				KERNEL_FRAMEWORK_HEADERS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -336,6 +354,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.0.0d1;
 				INFOPLIST_FILE = VoodooGPIO/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/../../MacKernelSDK/Library/x86_64",
+				);
 				MODULE_NAME = org.coolstar.VoodooGPIO;
 				MODULE_VERSION = 1.0.0d1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.coolstar.VoodooGPIO;
@@ -351,6 +373,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.0.0d1;
 				INFOPLIST_FILE = VoodooGPIO/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/../../MacKernelSDK/Library/x86_64",
+				);
 				MODULE_NAME = org.coolstar.VoodooGPIO;
 				MODULE_VERSION = 1.0.0d1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.coolstar.VoodooGPIO;
