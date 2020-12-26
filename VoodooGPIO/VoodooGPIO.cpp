@@ -746,37 +746,19 @@ void VoodooGPIO::stop(IOService *provider) {
 }
 
 IOReturn VoodooGPIO::setPowerState(unsigned long powerState, IOService *whatDevice) {
+    if (whatDevice != this)
+        return kIOPMAckImplied;
+
     if (powerState == 0) {
         controllerIsAwake = false;
         
-        for (int i = 0; i < ncommunities; i++) {
-            struct intel_community *community = &communities[i];
-            for (int j = 0; j < community->npins; j++) {
-                OSObject *pinInterruptOwner = community->pinInterruptActionOwners[j];
-                if (pinInterruptOwner) {
-                    int pin = community->pin_base + j;
-                    intel_gpio_irq_mask_unmask(pin, true);
-                }
-            }
-        }
-        
+        intel_pinctrl_suspend();
         IOLog("%s::Going to Sleep!\n", getName());
     } else {
         if (!controllerIsAwake) {
             controllerIsAwake = true;
             
-            for (int i = 0; i < ncommunities; i++) {
-                struct intel_community *community = &communities[i];
-                for (int j = 0; j < community->npins; j++) {
-                    OSObject *pinInterruptOwner = community->pinInterruptActionOwners[j];
-                    if (pinInterruptOwner) {
-                        int pin = community->pin_base + j;
-                        intel_gpio_irq_set_type(pin, community->interruptTypes[j]);
-                        intel_gpio_irq_mask_unmask(pin, false);
-                    }
-                }
-            }
-            
+            intel_pinctrl_resume();
             IOLog("%s::Woke up from Sleep!\n", getName());
         } else {
             IOLog("%s::GPIO Controller is already awake! Not reinitializing.\n", getName());
