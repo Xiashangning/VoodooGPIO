@@ -151,6 +151,7 @@ struct intel_pad_context {
 
 struct intel_community_context {
     uint32_t *intmask;
+    uint32_t *hostown;
 };
 
 struct intel_pinctrl_context {
@@ -241,6 +242,8 @@ class VoodooGPIO : public IOService {
     void intel_pinctrl_pm_release();
     void intel_pinctrl_suspend();
     void intel_gpio_irq_init();
+    UInt32 intel_gpio_is_requested(int base, unsigned int size);
+    UInt32 intel_gpio_update_pad_mode(IOVirtualAddress hostown, UInt32 mask, UInt32 value);
     void intel_pinctrl_resume();
 
     void intel_gpio_community_irq_handler(struct intel_community *community, bool *firstdelay);

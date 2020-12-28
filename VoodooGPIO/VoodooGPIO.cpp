@@ -453,7 +453,8 @@ void VoodooGPIO::intel_pinctrl_pm_init() {
     for (int i = 0; i < ncommunities; i++) {
         intel_community *community = &communities[i];
 
-        context.communities[i].intmask = IONew(UInt32, community->ngpps);;
+        context.communities[i].intmask = IONew(UInt32, community->ngpps);
+        context.communities[i].hostown = IONew(UInt32, community->ngpps);
     }
 }
 
@@ -461,6 +462,7 @@ void VoodooGPIO::intel_pinctrl_pm_release() {
     for (int i = 0; i < ncommunities; i++) {
         intel_community *community = &communities[i];
         IOSafeDeleteNULL(context.communities[i].intmask, UInt32, community->ngpps);
+        IOSafeDeleteNULL(context.communities[i].hostown, UInt32, community->ngpps);
     }
 
     IOSafeDeleteNULL(context.communities, intel_community_context, ncommunities);
@@ -500,11 +502,15 @@ void VoodooGPIO::intel_pinctrl_suspend() {
     struct intel_community_context *communityContexts = context.communities;
     for (int i = 0; i < ncommunities; i++) {
         struct intel_community *community = &communities[i];
-        
-        IOVirtualAddress base = community->regs + community->ie_offset;
-        
-        for (unsigned gpp = 0; gpp < community->ngpps; gpp++)
+        IOVirtualAddress base = 0;
+
+        base = community->regs + community->ie_offset;
+        for (unsigned int gpp = 0; gpp < community->ngpps; gpp++)
             communityContexts[i].intmask[gpp] = readl(base + gpp * 4);
+
+        base = community->regs + community->hostown_offset;
+        for (unsigned int gpp = 0; gpp < community->ngpps; gpp++)
+            communityContexts[i].hostown[gpp] = readl(base + gpp * 4);
     }
 }
 
@@ -519,6 +525,37 @@ void VoodooGPIO::intel_gpio_irq_init() {
             writel(0xffff, base + GPI_IS + gpp * 4);
         }
     }
+}
+
+UInt32 VoodooGPIO::intel_gpio_is_requested(int base, unsigned int size) {
+    UInt32 requested = 0;
+
+    for (unsigned int pin_offset = 0; pin_offset < size; pin_offset++) {
+        UInt32 gpio_pin = base + pin_offset;
+        SInt32 hw_pin = intel_gpio_to_pin(gpio_pin, nullptr, nullptr);
+        if (hw_pin < 0)
+            continue;
+
+        for (unsigned int registered_idx = 0; registered_idx < registered_pin_list->getCount(); registered_idx++) {
+            OSNumber* registered_pin = OSDynamicCast(OSNumber, registered_pin_list->getObject(registered_idx));
+            if (registered_pin && registered_pin->unsigned32BitValue() == hw_pin) {
+                requested |= BIT(pin_offset);
+                break;
+            }
+        }
+    }
+
+    return requested;
+}
+
+UInt32 VoodooGPIO::intel_gpio_update_pad_mode(IOVirtualAddress hostown, UInt32 mask, UInt32 value) {
+    UInt32 curr, updated;
+
+    curr = readl(hostown);
+    updated = (curr & ~mask) | (value & mask);
+    writel(updated, hostown);
+
+    return curr;
 }
 
 void VoodooGPIO::intel_pinctrl_resume() {
@@ -563,11 +600,27 @@ void VoodooGPIO::intel_pinctrl_resume() {
     struct intel_community_context *communityContexts = context.communities;
     for (int i = 0; i < ncommunities; i++) {
         struct intel_community *community = &communities[i];
+        IOVirtualAddress base = 0;
         
-        IOVirtualAddress base = communities->regs + communities->ie_offset;
-        
-        for (unsigned gpp = 0; gpp < community->ngpps; gpp++) {
+        base = communities->regs + communities->ie_offset;
+        for (unsigned int gpp = 0; gpp < community->ngpps; gpp++) {
             writel(communityContexts[i].intmask[gpp], base + gpp * 4);
+        }
+
+        base = community->regs + community->hostown_offset;
+        for (unsigned int gpp = 0; gpp < community->ngpps; gpp++) {
+            const struct intel_padgroup *padgrp = &community->gpps[gpp];
+            UInt32 requested = 0, value = 0;
+            UInt32 saved = communityContexts[i].hostown[gpp];
+
+            if (padgrp->gpio_base < 0)
+                continue;
+
+            requested = intel_gpio_is_requested(padgrp->gpio_base, padgrp->size);
+            value = intel_gpio_update_pad_mode(base + gpp * 4, requested, saved);
+            if ((value ^ saved) & requested) {
+                IOLog("%s::restore hostown %d/%u %#8x->%#8x\n", getName(), i, gpp, value, saved);
+            }
         }
     }
 }
