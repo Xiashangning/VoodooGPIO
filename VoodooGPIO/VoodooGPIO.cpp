@@ -913,6 +913,8 @@ IOReturn VoodooGPIO::unregisterInterrupt(int pin) {
     if (hw_pin < 0)
         return kIOReturnNoInterrupt;
 
+    IOLog("%s::Unregistering hardware pin 0x%02X for GPIO IRQ pin 0x%02X\n", getName(), hw_pin, pin);
+
     intel_gpio_irq_mask_unmask(hw_pin, true);
 
     unsigned communityidx = hw_pin - community->pin_base;
