@@ -757,7 +757,8 @@ bool VoodooGPIO::start(IOService *provider) {
     provider->joinPMtree(this);
     
     registerPowerDriver(this, myPowerStates, kMyNumberOfStates);
-    
+
+    IOLog("%s::Pin 0x1B mode after start: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
     return true;
 }
 
@@ -804,14 +805,18 @@ IOReturn VoodooGPIO::setPowerState(unsigned long powerState, IOService *whatDevi
 
     if (powerState == 0) {
         controllerIsAwake = false;
-        
+
+        IOLog("%s::Pin 0x1B mode before suspend: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
         intel_pinctrl_suspend();
+        IOLog("%s::Pin 0x1B mode after suspend: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
         IOLog("%s::Going to Sleep!\n", getName());
     } else {
         if (!controllerIsAwake) {
             controllerIsAwake = true;
-            
+
+            IOLog("%s::Pin 0x1B mode before resume: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
             intel_pinctrl_resume();
+            IOLog("%s::Pin 0x1B mode after resume: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
             IOLog("%s::Woke up from Sleep!\n", getName());
         } else {
             IOLog("%s::GPIO Controller is already awake! Not reinitializing.\n", getName());
@@ -926,6 +931,7 @@ IOReturn VoodooGPIO::registerInterrupt(int pin, OSObject *target, IOInterruptAct
         return kIOReturnNoInterrupt;
 
     IOLog("%s::Registering hardware pin 0x%02X for GPIO IRQ pin 0x%02X\n", getName(), hw_pin, pin);
+    IOLog("%s::Pin 0x1B mode on registration: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
 
     unsigned communityidx = hw_pin - community->pin_base;
     
@@ -967,6 +973,7 @@ IOReturn VoodooGPIO::unregisterInterrupt(int pin) {
         return kIOReturnNoInterrupt;
 
     IOLog("%s::Unregistering hardware pin 0x%02X for GPIO IRQ pin 0x%02X\n", getName(), hw_pin, pin);
+    IOLog("%s::Pin 0x1B mode on unregistration: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
 
     intel_gpio_irq_mask_unmask(hw_pin, true);
 
@@ -998,6 +1005,8 @@ IOReturn VoodooGPIO::enableInterrupt(int pin) {
     if (hw_pin < 0)
         return kIOReturnNoInterrupt;
 
+    IOLog("%s::Pin 0x1B mode on enable: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
+
     unsigned communityidx = hw_pin - community->pin_base;
     if (community->pinInterruptActionOwners[communityidx]) {
         intel_gpio_irq_set_type(hw_pin, community->interruptTypes[communityidx]);
@@ -1014,6 +1023,8 @@ IOReturn VoodooGPIO::disableInterrupt(int pin) {
     SInt32 hw_pin = intel_gpio_to_pin(pin, nullptr, nullptr);
     if (hw_pin < 0)
         return kIOReturnNoInterrupt;
+
+    IOLog("%s::Pin 0x1B mode on disable: %s\n", getName(), intel_pad_acpi_mode(0x1B) ? "ACPI" : "Not ACPI");
 
     intel_gpio_irq_mask_unmask(hw_pin, true);
     return getProvider()->disableInterrupt(0);
