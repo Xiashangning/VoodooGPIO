@@ -475,7 +475,7 @@ void VoodooGPIO::intel_pinctrl_suspend() {
     for (int i = 0; i < npins; i++) {
         struct pinctrl_pin_desc *desc = &pins[i];
         IOVirtualAddress padcfg;
-        uint32_t val;
+        UInt32 val;
         
         if (!intel_pinctrl_should_save(desc->number))
             continue;
@@ -566,7 +566,7 @@ void VoodooGPIO::intel_pinctrl_resume() {
     for (int i = 0; i < npins; i++) {
         struct pinctrl_pin_desc *desc = &pins[i];
         IOVirtualAddress padcfg;
-        uint32_t val;
+        UInt32 val;
         
         if (!intel_pinctrl_should_save(desc->number))
             continue;

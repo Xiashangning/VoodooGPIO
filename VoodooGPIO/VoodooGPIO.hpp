@@ -144,14 +144,14 @@ struct intel_community {
 };
 
 struct intel_pad_context {
-    uint32_t padcfg0;
-    uint32_t padcfg1;
-    uint32_t padcfg2;
+    UInt32 padcfg0;
+    UInt32 padcfg1;
+    UInt32 padcfg2;
 };
 
 struct intel_community_context {
-    uint32_t *intmask;
-    uint32_t *hostown;
+    UInt32 *intmask;
+    UInt32 *hostown;
 };
 
 struct intel_pinctrl_context {
